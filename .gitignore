@@ -1,2 +1,11 @@
+# Directories to toggle for the agents
 notes/
+
+# Directories to ALWAYS ignore
 .env
+uploads/
+parsed/
+
+# Cloned from github to run the llmsherpa Docker container
+nlm-ingestor/
+
