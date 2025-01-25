@@ -18,7 +18,7 @@ def parse_pdf(pdf_path):
 
 if __name__ == "__main__":
     # Use raw string for Windows path
-    pdf_path = r"C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\Uploads\monolith_realtime_recommend.pdf"
+    pdf_path = r"C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\Uploads\samples\monolith_realtime_recommend.pdf"
     
     print("🚀 Starting PDF parsing process...")
     doc = parse_pdf(pdf_path)

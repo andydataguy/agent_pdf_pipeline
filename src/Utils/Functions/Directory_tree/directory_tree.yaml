@@ -1,0 +1,32 @@
+# Directory Tree Configuration
+
+# Root directory path (default: current directory)
+path: "C:/Users/Anand/Documents/Code Projects/agent_data_platform/experiments/agent_pdf_pipeline/"
+
+# Maximum depth to traverse (default: unlimited)
+# Set to -1 for unlimited depth 
+depth: 5
+
+# List of patterns to exclude
+exclude:
+  - "*.pyc"
+  - "__pycache__"
+  - ".git"
+  - ".vscode"
+  - "working_docs"
+  - ".venv"
+  - "__init__.py"
+  - ".notes"
+  - ".parsed"
+  - "nlm-ingestor"
+  - "Directory_tree"
+
+
+# Output markdown file (default: tree.md)
+output: "project_directory_tree.md"
+
+# Optional: Additional settings
+settings:
+  show_size: true
+  show_modified_date: false
+  emoji_style: true

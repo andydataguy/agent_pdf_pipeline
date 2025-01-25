@@ -6,7 +6,7 @@ Uploads/
 
 # Directories to ALWAYS ignore
 .env
+.logfire/
 
 # Cloned from github to run the llmsherpa Docker container
 nlm-ingestor/
-

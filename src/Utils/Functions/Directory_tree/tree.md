@@ -1,0 +1,73 @@
+# Directory Tree
+Generated for: `C:\Users\Anand\Documents\Code Projects\agent_data_network\experiments\mvp_research_agent`
+
+```
+- 📁 src
+  - 📁 Actions
+  - 📁 Cloud
+    - 📁 Analytics
+    - 📁 Functions
+      - 📁 directory_tree
+      - 📁 file_aggregator
+      - 📁 tokenizer
+    - 📁 Terraform
+  - 📁 Core
+    - 📁 Edges
+    - 📁 Execution
+    - 📁 Knowledge
+      - 📁 Info_Modules
+      - 📁 Reference_Docs
+    - 📁 Nodes
+      - 📁 ADVANCED_Custom_Nodes
+      - 📁 Core_Reasoning
+    - 📁 Prompts
+      - 📁 ADVANCED_Custom_Prompts
+      - 📁 Core_Reasoning
+    - 📁 Rubrics
+      - 📁 ADVANCED_Custom_Rubrics
+      - 📁 Core_Reasoning
+    - 📁 Schemas
+    - 📁 State
+    - 📁 Tools
+      - 📁 Evaluation
+      - 📁 Parallel
+      - 📁 Retrieval
+      - 📁 Simulation
+      - 📁 Support
+    - 📁 Workflow
+  - 📁 Data
+    - 📁 Firestore
+      - 📁 Agent_CRM
+      - 📁 Governance
+      - 📁 Human_CRM
+    - 📁 Models
+      - 📁 Templates
+      - 📄 __init__.py
+    - 📁 Qdrant
+      - 📁 Embeddings
+      - 📁 Queries
+    - 📁 Storage
+      - 📁 Buckets
+      - 📁 Cache
+      - 📁 Config
+  - 📁 Frontend
+    - 📁 Assets
+    - 📁 Components
+    - 📁 FastHTML
+    - 📁 Styles
+  - 📁 Router
+  - 📁 Tests
+  - 📁 Utils
+    - 📁 Documentation
+    - 📁 Error_Handler
+    - 📁 Logger
+    - 📁 Observability
+  - 📄 main.py
+- 📄 .env
+- 📄 .gitignore
+- 📄 .python-version
+- 📄 .windsurfrules
+- 📄 pyproject.toml
+- 📄 README.md
+- 📄 uv.lock
+```
