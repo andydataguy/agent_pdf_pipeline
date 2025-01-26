@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the PDF parsing pipeline, a component of the Agent Data Platform, designed to extract structured information from PDF documents and convert it into Markdown format. This pipeline is built using PyMuPDF for PDF processing and Logfire for comprehensive observability. It is **fully configurable via a YAML file**, allowing for easy customization of parsing behavior and logging verbosity.
+This document outlines the PDF parsing pipeline, a component of the Agent Data Platform, designed to extract structured information from PDF documents and convert it into Markdown format. This pipeline is built using PyMuPDF for PDF processing and Logfire for comprehensive observability. It is configured via a YAML file, allowing for easy customization of parsing behavior.
 
 ## Directory Structure
 
@@ -25,7 +25,7 @@ agent_pdf_pipeline/
 │   │   │   └── ARCHIVE/     # (Future: Archive functions)
 │   │   │       └── ARHHIVE_pdf_parser.py
 │   │   └── Logger/
-│   │       └── logfire.py   # Generic Logfire logging template (copy-paste ready)
+│   │       └── logfire.py   # Simplified Logfire logging module
 ├── .env                       # Environment variables (e.g., Logfire token)
 ├── .gitignore                 # Git ignore file
 ├── .python-version            # Python version specification
@@ -54,81 +54,83 @@ agent_pdf_pipeline/
 
 3.  **Configuration via YAML:**
 
-    *   The parsing pipeline is **fully configured using `src/Processing/pdf_parser_config.yaml`**.
-    *   **Modify this file to customize parsing behavior and logging verbosity without changing the code.**
-    *   **Key Configuration Sections and Parameters:**
-        *   **`pdf_parsing_module`:**
-            *   `log_level`:  Sets the minimum log level for the `PDFParsingModule` itself. Choose from: `TRACE`, `DEBUG`, `INFO`, `NOTICE`, `WARN`, `ERROR`, `FATAL`. (Default: `INFO`).
-        *   **`text_extraction_module`:**
-            *   `text_blocks_strategy`:  Selects the text extraction strategy using `Page.get_text()`. Options: `blocks_sorted`, `words`, `dict`, `rawdict`, `html`, `xml`, `xhtml`, `text`. (Default: `blocks_sorted`).
-            *   `text_formatting`:
-                *   `bold_style`:  Markdown style for bold text (e.g., `**`, `__`). (Default: `**`).
-                *   `italic_style`: Markdown style for italic text (e.g., `_`, `*`). (Default: `_`).
-        *   **`table_extraction_module`:**
-            *   `strategy`: Table detection strategy for `Page.find_tables()`. Options: `lines`, `lines_strict`, `text`. (Default: `lines`).
-            *   `snap_tolerance`, `join_tolerance`, `intersection_tolerance`, `text_tolerance`, `edge_min_length`: Fine-tune table detection parameters (refer to PyMuPDF documentation for details).
-        *   **`image_extraction_module`:**
-            *   `image_format`: Output image format. Options: `png`, `jpeg`. (Default: `png`).
-            *   `image_quality`: Image quality for JPEG (0-100, ignored for PNG). (Default: `90`).
-            *   `output_subdirectory`: Subdirectory within the output folder to save images. (Default: `assets/images`).
-        *   **`math_notation_module`:**
-            *   `latex_display_delimiter`: Markdown delimiter for display LaTeX equations. (Default: `$$`).
-            *   `latex_inline_delimiter`: Markdown delimiter for inline LaTeX equations. (Default: `$`).
-        *   **`code_snippet_module`:**
-            *   `code_fence_style`: Markdown code fence style. Options: ` ``` `, `~~~`. (Default: ` ``` `).
-        *   **`logging_module`:**
-            *   `console_log_level`:  Minimum log level for console output. Choose from: `TRACE`, `DEBUG`, `INFO`, `NOTICE`, `WARN`, `ERROR`, `FATAL`. (Default: `INFO`). **Use uppercase strings for log levels in YAML.**
-            *   `logfire_enabled`: Enable sending logs to the Logfire platform (true/false). (Default: `true`).
-        *   `output_module`:
-            *   `markdown_filename_suffix`: Suffix appended to the output Markdown filename. (Default: `_parsed`).
-            *   `asset_subdirectory`: Root subdirectory name for storing assets. (Default: `assets`).
-    *   **Example Configuration Adjustments:**
-        *   **To increase console log verbosity for debugging:** Change `logging_module.console_log_level` to `"DEBUG"`.
-        *   **To experiment with table detection:** Modify parameters under `table_extraction_module` (e.g., `strategy`, `snap_tolerance`).
-        *   **To change Markdown formatting:** Adjust `bold_style`, `italic_style`, or `code_fence_style` in `text_extraction_module` and `code_snippet_module`.
+    *   The parsing pipeline is configured using `src/Processing/pdf_parser_config.yaml`.
+    *   **Modify this file to customize parsing behavior without changing the code.**
+    *   **Key Configuration Sections:**
+        *   `pdf_parsing_module`:  General logging level for the PDF parsing process.
+        *   `text_extraction_module`:  Controls text extraction strategies and Markdown formatting for text.
+        *   `table_extraction_module`:  Configures table detection parameters for PyMuPDF's table finder.
+        *   `image_extraction_module`:  Sets image output format, quality, and subdirectory.
+        *   `math_notation_module`:  Defines delimiters for LaTeX mathematical notations.
+        *   `code_snippet_module`:  Controls code block formatting.
+        *   `logging_module`:  Configures console logging level and Logfire integration.
+        *   `output_module`:  Sets output filename suffixes and asset subdirectory names.
+    *   **Refer to the comments within `src/Processing/pdf_parser_config.yaml` for detailed descriptions of each parameter and available options.**
 
 ## How to Run the Pipeline
 
-1.  **Place PDF Documents:** (Same as before)
+1.  **Place PDF Documents:**
 
-2.  **Run `main.py`:** (Same as before)
+    *   Put the PDF documents you want to parse into the `Uploads/samples/` directory or create new subdirectories within `Uploads/` for better organization (e.g., `Uploads/beginner/`, `Uploads/advanced/`).
 
-3.  **Output Location:** (Same as before)
+2.  **Run `main.py`:**
+
+    ```bash
+    python main.py
+    ```
+
+    *   Currently, `main.py` is configured to process the sample PDF: `Uploads/samples/monolith_realtime_recommend.pdf`.
+    *   To process a different PDF, modify the `pdf_path` variable in the `main()` function of `main.py`.
+    *   *(Future Enhancement: Command-line argument to specify PDF path directly)*
+
+3.  **Output Location:**
+
+    *   Parsed Markdown files and extracted assets will be saved in the `.output` directory.
+    *   For each PDF processed, a new folder will be created in `.output/`, named after the PDF file (without extension).
+    *   The Markdown file (`[pdf_filename]_parsed.md`) will be located directly in this folder.
+    *   Extracted images will be placed in the `assets/images/` subdirectory within the PDF-specific output folder.
 
 ## Code Structure and Modules
 
-*   **`main.py`:** Orchestration script that loads YAML configuration, initializes logging, and drives the PDF parsing process.
-*   **`src/Processing/pdf_to_markdown.py`:** (Same as before, modular pipeline)
-*   **`src/Utils/Logger/logfire.py`:** **Generic Logfire logging template (copy-paste ready) for use in any Python project.**
-*   **`src/Processing/pdf_parser_config.yaml`:** YAML configuration file that **centrally controls all aspects of the parsing pipeline.**
+*   **`main.py`:** Orchestration script that loads configuration, initializes logging, and drives the PDF parsing process.
+*   **`src/Processing/pdf_to_markdown.py`:** Contains the core PDF parsing pipeline, modularized into classes for different functionalities:
+    *   `PDFParsingModule`: Orchestrates the overall parsing workflow.
+    *   `MetadataExtractionModule`: Extracts document-level metadata and TOC.
+    *   `PageParsingModule`: Parses individual pages and coordinates element extraction.
+    *   `TextExtractionModule`: Extracts text content from pages.
+    *   `TableExtractionModule`: Extracts tables from pages.
+    *   `ImageExtractionModule`: Extracts images from pages.
+    *   `MarkdownOutputModule`: Assembles and saves the final Markdown output.
+    *   `MathNotationModule`: Formats LaTeX notations in Markdown.
+    *   `CodeSnippetModule`: Formats code snippets in Markdown.
+*   **`src/Utils/Logger/logfire.py`:**  Encapsulates Logfire logging functionalities for consistent and structured logging throughout the pipeline. **SIMPLIFIED TEMPLATE - Project and service identification now external.**
+*   **`src/Processing/pdf_parser_config.yaml`:** YAML configuration file that controls the behavior of the parsing pipeline, allowing users to customize parameters without modifying the code.
 
 ## Observability with Logfire
 
-*   (Same as before, Logfire integration details)
-*   **YAML Configuration for Logging:** Log levels and Logfire platform integration are now configurable via the `logging_module` section in `pdf_parser_config.yaml`.
+*   The pipeline is instrumented with Logfire for detailed logging and tracing.
+*   Log messages are output to the console and, if configured, sent to the Logfire platform.
+*   Spans are used to track the execution flow of the pipeline, providing insights into processing time and potential bottlenecks.
+*   Log levels and Logfire integration are configurable via the `logging_module` section in `pdf_parser_config.yaml`.
+*   Utilize the Logfire Web UI (if enabled) to explore traces, analyze performance, and debug issues.
 
-## Troubleshooting - KeyError: 'INFO'
+## YAML Configuration for Customization
 
-If you encounter a `KeyError: 'INFO'` error, it indicates an issue with how the console log level is being configured within Logfire.
+*   **Edit `src/Processing/pdf_parser_config.yaml` to customize the pipeline.**
+*   **No Code Changes Required for Configuration Adjustments.**
+*   **Example Customizations:**
+    *   Change text extraction strategy (`text_extraction_module.text_blocks_strategy`).
+    *   Adjust table detection parameters (`table_extraction_module` section).
+    *   Modify image output format and quality (`image_extraction_module` section).
+    *   Control console log verbosity and enable/disable Logfire cloud logging (`logging_module` section).
+    *   Customize Markdown output styles (e.g., bold/italic styles, code fence style in `text_extraction_module` and `code_snippet_module`).
 
-**Cause:**
+## Next Steps
 
-The Logfire library's console exporter expects the `min_log_level` parameter in `ConsoleOptions` to be an **integer representation of the log level** (e.g., `logging.INFO`), not a string like `"INFO"`.
+*   Run the pipeline with the sample `monolith_realtime_recommend.pdf` document and examine the output in the `.output` directory.
+*   Experiment with different configurations by modifying `src/Processing/pdf_parser_config.yaml` and observe the changes in parsing behavior and output.
+*   Explore the Logfire Web UI (if enabled) to analyze the logs and traces generated during pipeline execution.
+*   Begin integrating the parsed Markdown output into your multi-agent system and knowledge base.
+*   Continuously refine and extend the pipeline by adding new features, modules, and configurations as needed.
 
-**Solution:**
-
-1.  **Verify YAML Configuration:** Ensure that the `console_log_level` parameter in your `src/Processing/pdf_parser_config.yaml` file under the `logging_module` section is set to a **valid uppercase string representing a Python logging level**.  Valid options are: `"TRACE"`, `"DEBUG"`, `"INFO"`, `"NOTICE"`, `"WARN"`, `"ERROR"`, `"FATAL"`. **Make sure to use uppercase strings.**
-
-    ```yaml
-    logging_module:
-      console_log_level: "INFO"  # Correct: Uppercase string
-      logfire_enabled: true
-    ```
-
-2.  **Updated `logfire.py` Template:** The provided `src/Utils/Logger/logfire.py` template now includes logic to correctly handle string log levels from the YAML configuration and convert them to their integer equivalents using `logging` library constants. **Ensure you are using the updated `logfire.py` template.**
-
-By following these steps and using the updated code and YAML configuration, you should resolve the `KeyError: 'INFO'` and have a fully functional and YAML-configurable PDF parsing pipeline with Logfire observability.
-
----
-
-These are the updated files. Please replace your existing files with these new versions. After that, run `main.py` again to test if the `KeyError` is resolved and the pipeline is working as expected. Let me know how it goes!
+This README provides a starting point for understanding and using the YAML-configurable PDF parsing pipeline. Remember to consult the comments within `src/Processing/pdf_parser_config.yaml` for detailed parameter descriptions and customization options.

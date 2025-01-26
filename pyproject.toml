@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "logfire>=3.3.0",
     "pymupdf>=1.25.2",
+    "python-dotenv>=1.0.1",
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
 ]

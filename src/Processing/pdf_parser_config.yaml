@@ -1,7 +1,7 @@
 # YAML Configuration for PyMuPDF PDF Parsing Pipeline
 
 pdf_parsing_module:
-  log_level: INFO  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
+  log_level: INFO  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels # Corrected: String log level
 
 text_extraction_module:
   text_blocks_strategy: "blocks_sorted"  # Options: "blocks_sorted", "words", "dict", "rawdict", "html", "xml", "xhtml", "text"
@@ -33,7 +33,8 @@ code_snippet_module:
   # custom_keywords_lists: # Future: Dictionaries of custom keywords for language detection
 
 logging_module:
-  console_log_level: "INFO"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels
-  logfire_enabled: true         # Enable sending logs to Logfire platform (requires Logfire setup)
-  # sampling_rate: 1.0          # Future: Logfire sampling rate (0.0 - 1.0)
-  # scrubbing_enabled: false      # Future: Enable Logfire data scrubbing
+  console_log_level: "INFO"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
+  logfire_enabled: true         # Enable sending logs to Logfire platform (requires LOGFIRE_TOKEN in .env)
+
+output_module:
+  markdown_filename_suffix: "_parsed"  # Suffix to add to output markdown files

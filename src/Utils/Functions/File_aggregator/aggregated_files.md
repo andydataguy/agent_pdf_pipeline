@@ -1,3 +1,231 @@
+# Aggregated Files
+
+## File: C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\main.py
+```python
+import os
+import yaml
+import pathlib
+from src.Processing.pdf_to_markdown import PDFParsingModule
+from src.Utils.Logger.logfire import LogfireLogger
+
+def load_config(config_path="src/Processing/pdf_parser_config.yaml"):
+    """
+    Loads configuration from a YAML file.
+
+    Args:
+        config_path (str, optional): Path to the YAML configuration file. Defaults to "src/Processing/pdf_parser_config.yaml".
+
+    Returns:
+        dict: Configuration dictionary, or None if loading fails.
+    """
+    try:
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+            print(f"Configuration loaded from: {config_path}")
+            return config
+    except FileNotFoundError:
+        print(f"Error: Configuration file not found at: {config_path}")
+        return None
+    except yaml.YAMLError as e:
+        print(f"Error parsing YAML configuration: {e}")
+        return None
+
+def main():
+    """
+    Main function to orchestrate PDF parsing and Markdown conversion.
+    """
+    # Load configuration
+    config = load_config()
+    if not config:
+        print("Exiting due to configuration error.")
+        return
+
+    # Initialize logger with error handling
+    try:
+        logger = LogfireLogger(config=config)
+    except Exception as e:
+        print(f"Warning: Logger initialization failed: {e}")
+        print("Continuing with default console logging...")
+        logger = LogfireLogger()  # Fallback to default console logging
+
+    # Define paths
+    pdf_path = "Uploads/samples/monolith_realtime_recommend.pdf"
+    output_dir = ".output"
+
+    logger.log_info("Starting main PDF parsing process.", pdf_path=pdf_path, output_dir=output_dir)
+
+    # Create output directory
+    output_path_dir = os.path.join(output_dir, pathlib.Path(pdf_path).stem)
+    os.makedirs(output_path_dir, exist_ok=True)
+
+    # Define output markdown path
+    output_markdown_path = os.path.join(
+        output_path_dir,
+        pathlib.Path(pdf_path).stem + config['output_module'].get('markdown_filename_suffix', '_parsed') + ".md"
+    )
+
+    # Initialize and run PDF parsing
+    try:
+        pdf_parsing_module = PDFParsingModule(config)
+        success = pdf_parsing_module.process_pdf(pdf_path, output_markdown_path)
+        
+        if success:
+            logger.log_info("PDF processing completed successfully", 
+                          output_path=output_markdown_path)
+        else:
+            logger.log_error("PDF processing failed", 
+                           pdf_path=pdf_path)
+    except Exception as e:
+        logger.log_error(f"Error during PDF processing: {str(e)}", 
+                        pdf_path=pdf_path,
+                        error_type=type(e).__name__)
+
+if __name__ == "__main__":
+    main()
+```
+
+## File: C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\src\Utils\Logger\logfire.py
+```python
+import logfire
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+class LogfireLogger:
+    """
+    The ABSOLUTE SIMPLEST, copy-paste ready template for Logfire logging in any Python project.
+    Provides basic, configurable console logging and Logfire platform integration.
+    """
+
+    def __init__(self, config=None): 
+        """
+        Initializes the LogfireLogger with configuration from YAML and environment variables.
+
+        Args:
+            config (dict, optional): Configuration dictionary loaded from YAML. Defaults to None.
+        """
+        # Get Logfire token from environment variables
+        self.logfire_token = os.getenv('LOGFIRE_TOKEN')
+        
+        # Default configuration using string log levels
+        self.console_log_level = "info"
+        self.logfire_enabled = True
+
+        # Override defaults with YAML config if provided
+        if config and 'logging_module' in config:
+            logging_config = config['logging_module']
+            # Map config log levels to Logfire log levels
+            level_map = {
+                'DEBUG': 'debug',
+                'INFO': 'info',
+                'WARNING': 'warning',
+                'ERROR': 'error',
+                'CRITICAL': 'fatal'
+            }
+            config_level = logging_config.get('console_log_level', 'INFO').upper()
+            self.console_log_level = level_map.get(config_level, 'info')
+            self.logfire_enabled = logging_config.get('logfire_enabled', True)
+
+        try:
+            # Configure console logging
+            console_options = logfire.ConsoleOptions(
+                min_log_level=self.console_log_level,
+                colors=True
+            )
+
+            # Configure Logfire if enabled and token is available
+            if self.logfire_enabled and self.logfire_token:
+                logfire.configure(
+                    token=self.logfire_token,
+                    console=console_options
+                )
+            else:
+                # Console-only logging
+                logfire.configure(console=console_options)
+        except Exception as e:
+            print(f"Warning: Failed to configure Logfire: {e}")
+            # Fallback to basic console configuration
+            logfire.configure(
+                console=logfire.ConsoleOptions(
+                    min_log_level='info',
+                    colors=True
+                )
+            )
+
+    def log_debug(self, message, **kwargs):
+        """Log debug message."""
+        logfire.debug(message, **kwargs)
+
+    def log_info(self, message, **kwargs):
+        """Log info message."""
+        logfire.info(message, **kwargs)
+
+    def log_warning(self, message, **kwargs):
+        """Log warning message."""
+        logfire.warning(message, **kwargs)
+
+    def log_error(self, message, **kwargs):
+        """Log error message."""
+        logfire.error(message, **kwargs)
+
+    def log_critical(self, message, **kwargs):
+        """Log critical message."""
+        logfire.fatal(message, **kwargs)
+
+# Example usage (in your application modules):
+# from src.Utils.Logger.logfire import LogfireLogger
+# logger = LogfireLogger(config=config) # Simplest initialization - no arguments
+# logger.log_info("Starting processing...") # Simple logging calls
+```
+
+## File: C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\src\Processing\pdf_parser_config.yaml
+```yaml
+# YAML Configuration for PyMuPDF PDF Parsing Pipeline
+
+pdf_parsing_module:
+  log_level: INFO  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels # Corrected: String log level
+
+text_extraction_module:
+  text_blocks_strategy: "blocks_sorted"  # Options: "blocks_sorted", "words", "dict", "rawdict", "html", "xml", "xhtml", "text"
+  text_formatting:
+    bold_style: "**"  # Markdown style for bold text
+    italic_style: "_"  # Markdown style for italic text
+
+table_extraction_module:
+  strategy: "lines"          # Table detection strategy: "lines", "lines_strict", "text"
+  snap_tolerance: 5          # Snap tolerance for line detection (adjust for table line thickness)
+  join_tolerance: 5          # Join tolerance for table cell merging (adjust for cell spacing)
+  intersection_tolerance: 5  # Intersection tolerance for line intersection detection
+  text_tolerance: 5          # Text tolerance for text-based table detection
+  edge_min_length: 10        # Minimum line length to be considered a table edge
+
+image_extraction_module:
+  image_format: "png"            # Output image format: "png", "jpeg"
+  image_quality: 90              # Image quality for JPEG (0-100, ignored for PNG)
+  output_subdirectory: "assets/images" # Subdirectory to save extracted images within the output folder
+
+math_notation_module:
+  latex_display_delimiter: "$$"  # Markdown delimiter for display LaTeX equations
+  latex_inline_delimiter: "$"   # Markdown delimiter for inline LaTeX equations
+  # custom_regex_patterns: # Future: List of custom regex patterns for advanced LaTeX detection
+
+code_snippet_module:
+  code_fence_style: "```"       # Markdown code fence style: "```", "~~~"
+  code_language_detection: true # Future: Enable automatic code language detection
+  # custom_keywords_lists: # Future: Dictionaries of custom keywords for language detection
+
+logging_module:
+  console_log_level: "INFO"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
+  logfire_enabled: true         # Enable sending logs to Logfire platform (requires LOGFIRE_TOKEN in .env)
+
+output_module:
+  markdown_filename_suffix: "_parsed"  # Suffix to add to output markdown files
+```
+
+## File: C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\src\Processing\pdf_to_markdown.py
+```python
 import pymupdf
 import os
 import yaml
@@ -486,3 +714,5 @@ class CodeSnippetModule:
         formatted_text = "\n".join(formatted_lines) # Join lines back into text
         self.logger.log_debug("Formatted code snippets in text.") # Debug log
         return formatted_text # Return text with formatted code snippets
+```
+

@@ -1,0 +1,34 @@
+include:
+  files:
+    # Example 1: Using forward slashes (recommended for cross-platform compatibility)
+    # - "C:/Users/path/to/file.py"
+    
+    # Example 2: Using YAML literal style for Windows paths (paste directly from VS Code)
+    # - |
+    #   C:\Users\path\to\file.py
+    
+    # Your actual file path:
+    - |
+      C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\main.py
+  
+  directories:
+    # Example 1: Using forward slashes (recommended for cross-platform compatibility)
+    # - "C:/Users/path/to/directory"
+    
+    # Example 2: Using YAML literal style for Windows paths (paste directly from VS Code)
+    # - |
+    #   C:\Users\path\to\directory
+    
+    # Your actual directory paths:
+    - |
+      C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\src\Utils\Logger
+    - |
+      C:\Users\Anand\Documents\Code Projects\agent_data_platform\experiments\agent_pdf_pipeline\src\Processing
+
+exclude:
+  patterns:
+    - "*.pyc"
+    - "__pycache__"
+    - ".git"
+    - ".vscode"
+    - "__init__.py"  # Matches exact filename

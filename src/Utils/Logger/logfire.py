@@ -1,84 +1,92 @@
-import logfire  # Import the Logfire library
-import logging # Import the standard logging library for level number constants
+import logfire
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class LogfireLogger:
     """
-    A generic, copy-paste ready template for Logfire logging in any Python project.
-    Provides structured and configurable logging with sensible defaults.
-
-    To use this in your project:
-    1. Copy this logfire.py file to a 'Logger' subdirectory within your 'Utils' directory (or similar).
-    2. Ensure you have the 'logfire' library installed (pip install logfire).
-    3. Obtain your Logfire WRITE_TOKEN from the Logfire dashboard (create a project if needed).
-    4. Set the LOGFIRE_TOKEN environment variable in your system or .env file.
-    5. In your Python modules, import LogfireLogger:
-       `from src.Utils.Logger.logfire import LogfireLogger`
-    6. Initialize the logger with your configuration:
-       `logger = LogfireLogger(config=config, service_name=__name__)`
-       (Pass the loaded YAML config dictionary and a unique service_name for each module)
-    7. Use logger methods for logging:
-       `logger.log_info("Informational message", module="MyModule", operation="start")`
-       `logger.log_debug("Detailed debug info", variable_value=variable)`
-       `logger.log_warning("Potential issue detected", file_path=file)`
-       `logger.log_error("Critical error occurred", error_details=error, exc_info=True)`
-    8. Customize logging levels and Logfire behavior via the 'logging_module' section in your YAML config file.
+    The ABSOLUTE SIMPLEST, copy-paste ready template for Logfire logging in any Python project.
+    Provides basic, configurable console logging and Logfire platform integration.
     """
 
-    def __init__(self, project_name="default-project", service_name="generic-service", environment="development", config=None):
+    def __init__(self, config=None): 
         """
-        Initializes the LogfireLogger with project details and configuration.
+        Initializes the LogfireLogger with configuration from YAML and environment variables.
 
         Args:
-            project_name (str, optional): Your Logfire project name. Defaults to "default-project".
-            service_name (str, optional): The name of this service/application. Defaults to "generic-service".
-            environment (str, optional): The environment (development, staging, production). Defaults to "development".
             config (dict, optional): Configuration dictionary loaded from YAML. Defaults to None.
         """
-        console_log_level_name = "INFO"  # Default console log level name (string representation)
-        console_log_level_number = logging.INFO # Default console log level number (integer representation from logging)
+        # Get Logfire token from environment variables
+        self.logfire_token = os.getenv('LOGFIRE_TOKEN')
+        
+        # Default configuration using string log levels
+        self.console_log_level = "info"
+        self.logfire_enabled = True
 
-
+        # Override defaults with YAML config if provided
         if config and 'logging_module' in config:
             logging_config = config['logging_module']
-            console_log_level_config = logging_config.get('console_log_level')
-            if console_log_level_config:
-                console_log_level_name = console_log_level_config.upper() # Ensure uppercase for level name
-                try:
-                    console_log_level_number = getattr(logging, console_log_level_name) # Get integer level from logging
-                except AttributeError:
-                    print(f"Warning: Invalid console_log_level '{console_log_level_config}' in YAML, defaulting to INFO.")
-                    console_log_level_number = logging.INFO # Fallback to INFO if invalid level name
+            # Map config log levels to Logfire log levels
+            level_map = {
+                'DEBUG': 'debug',
+                'INFO': 'info',
+                'WARNING': 'warning',
+                'ERROR': 'error',
+                'CRITICAL': 'fatal'
+            }
+            config_level = logging_config.get('console_log_level', 'INFO').upper()
+            self.console_log_level = level_map.get(config_level, 'info')
+            self.logfire_enabled = logging_config.get('logfire_enabled', True)
 
+        try:
+            # Configure console logging
+            console_options = logfire.ConsoleOptions(
+                min_log_level=self.console_log_level,
+                colors=True
+            )
 
-        console_options = logfire.ConsoleOptions(min_log_level=console_log_level_number, colors=True) # Use integer level, enable colors
-
-        logfire.configure(
-            project_name=project_name,
-            service_name=service_name,
-            environment=environment,
-            console=console_options,
-            send_to_logfire=config and config['logging_module'].get('logfire_enabled', True) if config and 'logging_module' in config else True # Control sending to Logfire via YAML
-        )
-
-        self.logger = logfire  # Assign logfire to self.logger for easy access
-
-    def log_info(self, message, **kwargs):
-        """Logs an informational message."""
-        self.logger.info(message, **kwargs)
+            # Configure Logfire if enabled and token is available
+            if self.logfire_enabled and self.logfire_token:
+                logfire.configure(
+                    token=self.logfire_token,
+                    console=console_options
+                )
+            else:
+                # Console-only logging
+                logfire.configure(console=console_options)
+        except Exception as e:
+            print(f"Warning: Failed to configure Logfire: {e}")
+            # Fallback to basic console configuration
+            logfire.configure(
+                console=logfire.ConsoleOptions(
+                    min_log_level='info',
+                    colors=True
+                )
+            )
 
     def log_debug(self, message, **kwargs):
-        """Logs a debug message (for detailed development info)."""
-        self.logger.debug(message, **kwargs)
+        """Log debug message."""
+        logfire.debug(message, **kwargs)
+
+    def log_info(self, message, **kwargs):
+        """Log info message."""
+        logfire.info(message, **kwargs)
 
     def log_warning(self, message, **kwargs):
-        """Logs a warning message (for potential issues)."""
-        self.logger.warn(message, **kwargs)
+        """Log warning message."""
+        logfire.warning(message, **kwargs)
 
-    def log_error(self, message, exc_info=True, **kwargs):
-        """Logs an error message (for errors and exceptions)."""
-        self.logger.error(message, exc_info=exc_info, **kwargs)
+    def log_error(self, message, **kwargs):
+        """Log error message."""
+        logfire.error(message, **kwargs)
+
+    def log_critical(self, message, **kwargs):
+        """Log critical message."""
+        logfire.fatal(message, **kwargs)
 
 # Example usage (in your application modules):
 # from src.Utils.Logger.logfire import LogfireLogger
-# logger = LogfireLogger(config=config, service_name=__name__) # Pass config and module name
-# logger.log_info("Starting processing...", module="MyModule", operation="start")
+# logger = LogfireLogger(config=config) # Simplest initialization - no arguments
+# logger.log_info("Starting processing...") # Simple logging calls
