@@ -1,0 +1,39 @@
+# YAML Configuration for PyMuPDF PDF Parsing Pipeline
+
+pdf_parsing_module:
+  log_level: INFO  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
+
+text_extraction_module:
+  text_blocks_strategy: "blocks_sorted"  # Options: "blocks_sorted", "words", "dict", "rawdict", "html", "xml", "xhtml", "text"
+  text_formatting:
+    bold_style: "**"  # Markdown style for bold text
+    italic_style: "_"  # Markdown style for italic text
+
+table_extraction_module:
+  strategy: "lines"          # Table detection strategy: "lines", "lines_strict", "text"
+  snap_tolerance: 5          # Snap tolerance for line detection (adjust for table line thickness)
+  join_tolerance: 5          # Join tolerance for table cell merging (adjust for cell spacing)
+  intersection_tolerance: 5  # Intersection tolerance for line intersection detection
+  text_tolerance: 5          # Text tolerance for text-based table detection
+  edge_min_length: 10        # Minimum line length to be considered a table edge
+
+image_extraction_module:
+  image_format: "png"            # Output image format: "png", "jpeg"
+  image_quality: 90              # Image quality for JPEG (0-100, ignored for PNG)
+  output_subdirectory: "assets/images" # Subdirectory to save extracted images within the output folder
+
+math_notation_module:
+  latex_display_delimiter: "$$"  # Markdown delimiter for display LaTeX equations
+  latex_inline_delimiter: "$"   # Markdown delimiter for inline LaTeX equations
+  # custom_regex_patterns: # Future: List of custom regex patterns for advanced LaTeX detection
+
+code_snippet_module:
+  code_fence_style: "```"       # Markdown code fence style: "```", "~~~"
+  code_language_detection: true # Future: Enable automatic code language detection
+  # custom_keywords_lists: # Future: Dictionaries of custom keywords for language detection
+
+logging_module:
+  console_log_level: "INFO"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels
+  logfire_enabled: true         # Enable sending logs to Logfire platform (requires Logfire setup)
+  # sampling_rate: 1.0          # Future: Logfire sampling rate (0.0 - 1.0)
+  # scrubbing_enabled: false      # Future: Enable Logfire data scrubbing
