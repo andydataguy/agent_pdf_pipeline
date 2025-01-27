@@ -26,31 +26,30 @@ class PageParser:
             page (pymupdf.Page): PyMuPDF Page object.
             output_dir (str): Directory to save output assets (e.g., images).
 
-        Returns:
-            str: Markdown content of the parsed page.
+        Yields:
+            str: Markdown content chunks of the parsed page.
         """
         self.logger.log_info(f"Parsing page: {page.number + 1}", page_number=page.number + 1)
-        page_markdown = f"## Page {page.number + 1}\n\n"
+        yield f"## Page {page.number + 1}\n\n"
 
         # Text Extraction
         text_extractor = TextExtractor(self.config, self.logger)
-        text_content = text_extractor.extract_text_blocks(page)
-        page_markdown += "### Text Content\n\n" + text_content + "\n\n"
+        yield "### Text Content\n\n"
+        yield from text_extractor.extract_text_blocks(page)
+        yield "\n\n"
 
         # Table Extraction
         table_extractor = TableExtractor(self.config, self.logger)
-        tables_markdown = table_extractor.extract_tables_from_page(page)
-        if tables_markdown:
-            page_markdown += "### Tables\n\n"
-            for table_md in tables_markdown:
-                page_markdown += table_md + "\n\n"
+        tables_generator = table_extractor.extract_tables_from_page(page)
+        if tables_generator:
+            yield "### Tables\n\n"
+            yield from tables_generator
+            yield "\n\n"
 
         # Image Extraction
         image_extractor = ImageExtractor(self.config, self.logger)
-        image_links = image_extractor.extract_images_from_page(page, output_dir)
-        if image_links:
-            page_markdown += "### Images\n\n"
-            for link in image_links:
-                page_markdown += link + "\n\n"
-
-        return page_markdown
+        image_links_generator = image_extractor.extract_images_from_page(page, output_dir)
+        if image_links_generator:
+            yield "### Images\n\n"
+            yield from image_links_generator
+            yield "\n\n"

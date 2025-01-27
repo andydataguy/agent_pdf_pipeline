@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "logfire>=3.3.0",
+    "more-itertools>=10.6.0",
+    "numpy>=2.2.2",
     "pymupdf>=1.25.2",
     "python-dotenv>=1.0.1",
     "pyyaml>=6.0.2",

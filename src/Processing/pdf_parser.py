@@ -21,18 +21,16 @@ class PDFParser:
 
     def parse_pdf_document(self, pdf_path, output_dir):
         """
-        Parses a PDF document and returns structured Markdown content.
+        Parses a PDF document and yields structured Markdown content.
 
         Args:
             pdf_path (str): Path to the input PDF file.
             output_dir (str): Directory to save output Markdown and assets.
 
-        Returns:
-            str: Markdown content of the document, or None in case of error.
+        Yields:
+            str: Markdown content chunks of the document.
         """
         self.logger.log_info(f"Starting PDF parsing for: {pdf_path}", pdf_path=pdf_path)
-
-        markdown_content = ""
 
         try:
             doc = pymupdf.open(pdf_path)
@@ -41,34 +39,32 @@ class PDFParser:
             # Metadata Extraction
             metadata_extractor = MetadataExtractor(self.config, self.logger)
             document_metadata = metadata_extractor.extract_document_metadata(doc)
-            markdown_content += self._assemble_yaml_frontmatter(document_metadata)
+            yield self._assemble_yaml_frontmatter(document_metadata)
 
             # Table of Contents Extraction
             table_of_contents = metadata_extractor.extract_table_of_contents(doc)
-            markdown_content += self._format_table_of_contents_markdown(table_of_contents)
+            yield self._format_table_of_contents_markdown(table_of_contents)
 
             # Page Parsing and Content Extraction
             page_parser = PageParser(self.config, self.logger)
             for page in doc:
-                page_markdown = page_parser.parse_page_content(page, output_dir)
-                markdown_content += page_markdown
+                yield from page_parser.parse_page_content(page, output_dir)
                 self.logger.log_info(f"Page {page.number + 1} parsed.", pdf_path=pdf_path, page_number=page.number + 1)
 
             doc.close()
             self.logger.log_info(f"PDF parsing completed successfully: {pdf_path}", pdf_path=pdf_path)
-            return markdown_content
 
         except FileNotFoundError:
             self.logger.log_error(f"File not found: {pdf_path}", pdf_path=pdf_path, exc_info=True)
-            return None
+            return
 
         except RuntimeError as e:
             self.logger.log_error(f"Error processing PDF: {pdf_path} - {e}", pdf_path=pdf_path, exc_info=True)
-            return None
+            return
 
         except Exception as e:
             self.logger.log_error(f"Unexpected error during PDF parsing: {pdf_path} - {e}", pdf_path=pdf_path, exc_info=True)
-            return None
+            return
 
     def _assemble_yaml_frontmatter(self, metadata):
         """

@@ -26,16 +26,15 @@ class ImageExtractor:
             page (pymupdf.Page): PyMuPDF Page object.
             output_dir (str): Directory to save output images.
 
-        Returns:
-            list: List of Markdown image links for extracted images.
+        Yields:
+            str: Markdown image links for extracted images, one at a time.
         """
         self.logger.log_info(f"Extracting images from page {page.number + 1}", page_number=page.number + 1)
-        image_links = []
         image_list = page.get_images()
 
         if not image_list:
             self.logger.log_info("No images found on page", page_number=page.number + 1)
-            return []
+            return
 
         # Create output directory if it doesn't exist
         image_output_dir = os.path.join(output_dir, self.output_subdirectory)
@@ -57,7 +56,7 @@ class ImageExtractor:
 
                     # Create relative path for Markdown link
                     relative_path = os.path.join(self.output_subdirectory, image_filename).replace("\\", "/")
-                    image_links.append(f"![Image {img_idx} from page {page.number + 1}]({relative_path})")
+                    yield f"![Image {img_idx} from page {page.number + 1}]({relative_path})\n\n"
                     self.logger.log_info(f"Saved image {img_idx} from page {page.number + 1}", 
                                        page_number=page.number + 1, 
                                        image_number=img_idx,
@@ -69,5 +68,3 @@ class ImageExtractor:
                                     image_number=img_idx,
                                     exc_info=True)
                 continue
-
-        return image_links

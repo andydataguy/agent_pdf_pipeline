@@ -21,20 +21,17 @@ class TextExtractor:
         Args:
             page (pymupdf.Page): PyMuPDF Page object.
 
-        Returns:
-            str: Markdown formatted text blocks.
+        Yields:
+            str: Markdown formatted text blocks, one at a time.
         """
         self.logger.log_info(f"Extracting text blocks from page {page.number + 1}", page_number=page.number + 1)
         blocks = page.get_text("blocks")
         
         if not blocks:
             self.logger.log_info("No text blocks found on page", page_number=page.number + 1)
-            return ""
+            return
 
-        markdown_text = ""
         for block in blocks:
             text = block[4].strip()  # Text content is at index 4
             if text:
-                markdown_text += text + "\n\n"
-
-        return markdown_text
+                yield text + "\n\n"

@@ -61,22 +61,21 @@ def main():
     # Initialize and run PDF parsing
     try:
         pdf_parser = PDFParser(config)
-        markdown_content = pdf_parser.parse_pdf_document(pdf_path, output_path_dir)
         
-        if markdown_content:
-            # Define output markdown path
-            output_markdown_path = os.path.join(
-                output_path_dir,
-                pathlib.Path(pdf_path).stem + config['output_module'].get('markdown_filename_suffix', '_parsed') + ".md"
-            )
-            
-            # Save markdown content
-            markdown_output.save_markdown_file(markdown_content, output_markdown_path)
-            logger.log_info("PDF processing completed successfully", 
-                          output_path=output_markdown_path)
-        else:
-            logger.log_error("PDF processing failed", 
-                           pdf_path=pdf_path)
+        # Define output markdown path
+        output_markdown_path = os.path.join(
+            output_path_dir,
+            pathlib.Path(pdf_path).stem + config['output_module'].get('markdown_filename_suffix', '_parsed') + ".md"
+        )
+        
+        # Process PDF and write content incrementally
+        with open(output_markdown_path, 'w', encoding='utf-8') as f:
+            for content_chunk in pdf_parser.parse_pdf_document(pdf_path, output_path_dir):
+                f.write(content_chunk)
+                f.flush()  # Ensure content is written immediately
+        
+        logger.log_info("PDF processing completed successfully", 
+                      output_path=output_markdown_path)
     except Exception as e:
         logger.log_error(f"Error during PDF processing: {str(e)}", 
                         pdf_path=pdf_path,

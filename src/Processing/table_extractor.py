@@ -20,23 +20,20 @@ class TableExtractor:
         Args:
             page (pymupdf.Page): PyMuPDF Page object.
 
-        Returns:
-            list: List of Markdown formatted tables (strings).
+        Yields:
+            str: Markdown formatted table strings, one at a time.
         """
         self.logger.log_info(f"Extracting tables from page {page.number + 1}", page_number=page.number + 1)
         tables = page.find_tables()
-        markdown_tables = []
 
         if not tables:
             self.logger.log_info("No tables found on page", page_number=page.number + 1)
-            return []
+            return
 
         for table_idx, table in enumerate(tables, 1):
             markdown_table = self._convert_table_to_markdown(table, table_idx)
             if markdown_table:
-                markdown_tables.append(markdown_table)
-
-        return markdown_tables
+                yield markdown_table + "\n\n"
 
     def _convert_table_to_markdown(self, table, table_idx):
         """
@@ -58,7 +55,9 @@ class TableExtractor:
         col_widths = [0] * len(table.cells[0])
         for row in table.cells:
             for col_idx, cell in enumerate(row):
-                col_widths[col_idx] = max(col_widths[col_idx], len(cell.text.strip()))
+                # Handle both string and float cell content
+                cell_text = str(cell.text) if hasattr(cell, 'text') else str(cell)
+                col_widths[col_idx] = max(col_widths[col_idx], len(cell_text.strip()))
 
         # Create header row
         header_row = "|"
@@ -73,7 +72,9 @@ class TableExtractor:
         for row in table.cells:
             markdown_row = "|"
             for col_idx, cell in enumerate(row):
-                text = cell.text.strip()
+                # Handle both string and float cell content
+                cell_text = str(cell.text) if hasattr(cell, 'text') else str(cell)
+                text = cell_text.strip()
                 padding = " " * (col_widths[col_idx] - len(text))
                 markdown_row += f" {text}{padding} |"
             markdown_table += markdown_row + "\n"
