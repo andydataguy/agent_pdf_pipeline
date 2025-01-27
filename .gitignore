@@ -4,6 +4,7 @@
 .context/
 Uploads/
 
+
 # Directories to ALWAYS ignore
 .env
 .logfire/
@@ -13,4 +14,4 @@ __pycache__/
 venv/
 .venv/
 env/
-
+.output/
