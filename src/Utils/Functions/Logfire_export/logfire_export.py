@@ -37,7 +37,15 @@ def export_logfire_errors(config):
 
     load_dotenv() # Load environment variables from .env file
     logfire_read_token = os.environ.get("LOGFIRE_READ_TOKEN") # Get token from environment variable
-    output_dir = config.get("output_directory", "logfire_export_output") # Default output directory
+    
+    # Set default output directory to .notes
+    default_output_dir = "C:/Users/Anand/Documents/Code Projects/agent_data_platform/experiments/agent_pdf_pipeline/.notes"
+    output_dir = config.get("output_directory", default_output_dir).replace("\\", "/") # Default output directory
+    
+    # If the config specifies a relative path, make it relative to the .notes directory
+    if not os.path.isabs(output_dir):
+        output_dir = os.path.join(default_output_dir, output_dir).replace("\\", "/")
+        
     output_filename = config.get("output_filename", "logfire_errors.json") # Default output filename
     log_level_filter = config.get("log_level_filter", "error") # Default log level filter
 
@@ -61,16 +69,6 @@ def export_logfire_errors(config):
     WHERE level >= level_num('{log_level_filter}')
     LIMIT 100  -- Limiting to 100 errors for now
     """
-    # --- Original Time-Range Query (Commented Out - Still Investigating Time Issues) ---
-    # time_range = config.get("time_range", "1 hour") # Default time range
-    # sql_query = f"""
-    # SELECT *
-    # FROM records
-    # WHERE level >= level_num('{log_level_filter}')
-    #   AND recorded_timestamp > now() - interval '{time_range}'
-    # ORDER BY recorded_timestamp DESC
-    # """
-
 
     params = {"sql": sql_query}
 

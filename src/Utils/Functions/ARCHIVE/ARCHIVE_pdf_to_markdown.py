@@ -17,9 +17,7 @@ class PDFParsingModule:
             config (dict): Configuration dictionary loaded from YAML.
         """
         self.config = config.get('pdf_parsing_module', {}) # Get module specific config, default to empty dict
-        self.logger = LogfireLogger(config=config) # Initialize LogfireLogger - SIMPLIFIED, project/service externally configured
-        self.log_level = self.config.get('log_level', "INFO") # Default log level if not in config, from YAML
-
+        self.logger = LogfireLogger(config=config) # Initialize LogfireLogger
 
     def parse_pdf_document(self, pdf_path, output_dir):
         """

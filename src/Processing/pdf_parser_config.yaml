@@ -1,8 +1,5 @@
 # YAML Configuration for PyMuPDF PDF Parsing Pipeline
 
-pdf_parsing_module:
-  log_level: INFO  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels # Corrected: String log level
-
 text_extraction_module:
   text_blocks_strategy: "blocks_sorted"  # Options: "blocks_sorted", "words", "dict", "rawdict", "html", "xml", "xhtml", "text"
   text_formatting:

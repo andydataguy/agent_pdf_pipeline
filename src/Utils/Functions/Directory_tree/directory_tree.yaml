@@ -16,14 +16,13 @@ exclude:
   - "working_docs"
   - ".venv"
   - "__init__.py"
-  - ".notes"
   - ".parsed"
   - "nlm-ingestor"
   - "Directory_tree"
 
 
 # Output markdown file (default: tree.md)
-output: "project_directory_tree.md"
+output: "C:/Users/Anand/Documents/Code Projects/agent_data_platform/experiments/agent_pdf_pipeline/.notes/latest_directory_tree.md"
 
 # Optional: Additional settings
 settings:

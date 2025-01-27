@@ -178,10 +178,15 @@ class FileAggregator:
         file_infos = self.process_files()
         
         try:
-            with open(output_path, 'w', encoding='utf-8') as f:
+            # Ensure output directory exists
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with output_path.open('w', encoding='utf-8') as f:
                 f.write("# Aggregated Files\n\n")
                 for file_info in file_infos:
-                    relative_path = str(Path(file_info.path))
+                    # Convert Windows paths to forward slashes for consistency
+                    relative_path = str(Path(file_info.path)).replace('\\', '/')
                     f.write(f"## File: {relative_path}\n")
                     f.write(f"```{file_info.language}\n")
                     f.write(file_info.content)
@@ -192,13 +197,13 @@ class FileAggregator:
             raise
 
 if __name__ == '__main__':
-    # Example usage
-    config_path = "file_aggregator.yaml"
-    output_path = "aggregated_files.md"
+    # Set paths for the aggregator
+    config_path = Path(__file__).parent / "file_aggregator.yaml"
+    output_path = Path("C:/Users/Anand/Documents/Code Projects/agent_data_platform/experiments/agent_pdf_pipeline/.notes/latest_code.md")
     
     try:
-        aggregator = FileAggregator(config_path)
-        aggregator.generate_markdown(output_path)
+        aggregator = FileAggregator(str(config_path))
+        aggregator.generate_markdown(str(output_path))
     except Exception as e:
         logger.error(f"Failed to aggregate files: {e}")
         raise

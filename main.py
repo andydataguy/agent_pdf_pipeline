@@ -1,7 +1,8 @@
 import os
 import yaml
 import pathlib
-from src.Processing.pdf_to_markdown import PDFParsingModule
+from src.Processing.pdf_parser import PDFParser
+from src.Processing.markdown_output import MarkdownOutput
 from src.Utils.Logger.logfire import LogfireLogger
 
 def load_config(config_path="src/Processing/pdf_parser_config.yaml"):
@@ -54,18 +55,23 @@ def main():
     output_path_dir = os.path.join(output_dir, pathlib.Path(pdf_path).stem)
     os.makedirs(output_path_dir, exist_ok=True)
 
-    # Define output markdown path
-    output_markdown_path = os.path.join(
-        output_path_dir,
-        pathlib.Path(pdf_path).stem + config['output_module'].get('markdown_filename_suffix', '_parsed') + ".md"
-    )
+    # Initialize markdown output handler
+    markdown_output = MarkdownOutput(config, logger)
 
     # Initialize and run PDF parsing
     try:
-        pdf_parsing_module = PDFParsingModule(config)
-        success = pdf_parsing_module.parse_pdf_document(pdf_path, output_markdown_path)
+        pdf_parser = PDFParser(config)
+        markdown_content = pdf_parser.parse_pdf_document(pdf_path, output_path_dir)
         
-        if success:
+        if markdown_content:
+            # Define output markdown path
+            output_markdown_path = os.path.join(
+                output_path_dir,
+                pathlib.Path(pdf_path).stem + config['output_module'].get('markdown_filename_suffix', '_parsed') + ".md"
+            )
+            
+            # Save markdown content
+            markdown_output.save_markdown_file(markdown_content, output_markdown_path)
             logger.log_info("PDF processing completed successfully", 
                           output_path=output_markdown_path)
         else:

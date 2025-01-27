@@ -110,7 +110,7 @@ class LogfireLogger:
         self.logfire_token = os.getenv('LOGFIRE_TOKEN')
         
         # Default configuration using string log levels
-        self.console_log_level = "info"
+        self.console_log_level = "debug"
         self.logfire_enabled = True
 
         # Override defaults with YAML config if provided
@@ -124,9 +124,11 @@ class LogfireLogger:
                 'ERROR': 'error',
                 'CRITICAL': 'fatal'
             }
-            config_level = logging_config.get('console_log_level', 'INFO').upper()
-            self.console_log_level = level_map.get(config_level, 'info')
+            config_level = logging_config.get('console_log_level', 'DEBUG').upper()
+            self.console_log_level = level_map.get(config_level, 'debug')
             self.logfire_enabled = logging_config.get('logfire_enabled', True)
+
+        logfire.debug(f"LogfireLogger initialized with console_log_level: {self.console_log_level}") # <-- ADD THIS LINE
 
         try:
             # Configure console logging
@@ -149,7 +151,7 @@ class LogfireLogger:
             # Fallback to basic console configuration
             logfire.configure(
                 console=logfire.ConsoleOptions(
-                    min_log_level='info',
+                    min_log_level='debug',
                     colors=True
                 )
             )
@@ -185,7 +187,7 @@ class LogfireLogger:
 # YAML Configuration for PyMuPDF PDF Parsing Pipeline
 
 pdf_parsing_module:
-  log_level: INFO  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels # Corrected: String log level
+  log_level: DEBUG  # Minimum log level for PDFParsingModule (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL) - Case-insensitive string from Python's logging levels # Corrected: String log level
 
 text_extraction_module:
   text_blocks_strategy: "blocks_sorted"  # Options: "blocks_sorted", "words", "dict", "rawdict", "html", "xml", "xhtml", "text"
@@ -217,7 +219,7 @@ code_snippet_module:
   # custom_keywords_lists: # Future: Dictionaries of custom keywords for language detection
 
 logging_module:
-  console_log_level: "INFO"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
+  console_log_level: "DEBUG"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
   logfire_enabled: true         # Enable sending logs to Logfire platform (requires LOGFIRE_TOKEN in .env)
 
 output_module:

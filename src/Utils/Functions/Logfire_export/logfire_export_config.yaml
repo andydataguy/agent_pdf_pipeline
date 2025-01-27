@@ -10,7 +10,7 @@
 # logfire_read_token: "YOUR_LOGFIRE_READ_TOKEN_HERE"  <-- REMOVE THIS LINE OR LEAVE IT COMMENTED OUT
 
 # Output directory for the exported JSON file
-output_directory: "logfire_export_output"
+output_directory: ""  # Empty string means use the default .notes directory
 
 # Output filename for the exported JSON file
 output_filename: "logfire_errors.json"
