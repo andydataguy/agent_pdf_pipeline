@@ -14,5 +14,3 @@ venv/
 .venv/
 env/
 
-# Cloned from github to run the llmsherpa Docker container
-nlm-ingestor/

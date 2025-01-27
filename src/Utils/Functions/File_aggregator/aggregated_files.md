@@ -67,7 +67,7 @@ def main():
     # Initialize and run PDF parsing
     try:
         pdf_parsing_module = PDFParsingModule(config)
-        success = pdf_parsing_module.process_pdf(pdf_path, output_markdown_path)
+        success = pdf_parsing_module.parse_pdf_document(pdf_path, output_markdown_path)
         
         if success:
             logger.log_info("PDF processing completed successfully", 

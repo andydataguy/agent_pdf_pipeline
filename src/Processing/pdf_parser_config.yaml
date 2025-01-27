@@ -33,7 +33,7 @@ code_snippet_module:
   # custom_keywords_lists: # Future: Dictionaries of custom keywords for language detection
 
 logging_module:
-  console_log_level: "INFO"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
+  console_log_level: "DEBUG"      # Minimum console log level (TRACE, DEBUG, INFO, NOTICE, WARN, ERROR, FATAL)
   logfire_enabled: true         # Enable sending logs to Logfire platform (requires LOGFIRE_TOKEN in .env)
 
 output_module:

@@ -1,0 +1,38 @@
+# Configuration for Logfire Error Log Export Utility
+
+# Logfire API Read Token -  **IMPORTANT:  DO NOT STORE YOUR READ TOKEN DIRECTLY IN THIS FILE!**
+#                             Instead, set it as an environment variable named LOGFIRE_READ_TOKEN.
+#                             This file should be committed to your repository, but your
+#                             API token should be kept secret and out of version control.
+#
+#                             Refer to the README.md for instructions on how to set environment variables.
+#
+# logfire_read_token: "YOUR_LOGFIRE_READ_TOKEN_HERE"  <-- REMOVE THIS LINE OR LEAVE IT COMMENTED OUT
+
+# Output directory for the exported JSON file
+output_directory: "logfire_export_output"
+
+# Output filename for the exported JSON file
+output_filename: "logfire_errors.json"
+
+# Time range parameter is currently disabled in the simplified query.
+# Time range for querying errors from Logfire.
+# This parameter uses PostgreSQL interval syntax. Examples:
+#   "1 hour"
+#   "24 hours"
+#   "7 days"
+#   "30 minutes"
+#   "5 minutes"
+#   "1 minute"
+#   "30 seconds"
+#   "15 seconds"
+#   "5 seconds"
+#   "1 second"
+#
+# For more complex interval formats, refer to the PostgreSQL documentation:
+# https://www.postgresql.org/docs/current/datatype-datetime.html#DATATYPE-INTERVAL-SYNTAX
+time_range: "1 hour" # Parameter currently not used in simplified query
+
+# Log level to filter for. Exports logs with this level and above (more severe levels).
+# Valid values (case-insensitive): "error", "warn", "notice", "info", "debug", "trace"
+log_level_filter: "error"
